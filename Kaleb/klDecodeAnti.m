@@ -300,26 +300,26 @@ for it = 1:nTrs
         Task.Correct(it) = 0;
     end
     if isnan(Task.SaccEnd(it)) && ~isnan(Task.SRT(it))
-        if Eyes.Good
-            tmpT = Eyes.Times(Eyes.Times >= Task.StimOnsetToTrial(it) & Eyes.Times <= Task.SRT(it)+3000);
-            tmpX = Eyes.X(Eyes.Times >= Task.StimOnsetToTrial(it) & Eyes.Times <= Task.SRT(it)+3000);
-            tmpY = Eyes.Y(Eyes.Times >= Task.StimOnsetToTrial(it) & Eyes.Times <= Task.SRT(it)+3000);
-            if strcmpi(Task.TrialType{it},'pro')
-                inWind = klInBox(tmpX,tmpY,[Task.Eccentricity(it)*cos(klDeg2Rad(Task.TargetLoc(it))),Task.Eccentricity(it)*sin(klDeg2Rad(Task.TargetLoc(it)))],4);
-            else
-                inWind = klInBox(tmpX,tmpY,[Task.Eccentricity(it)*cos(klDeg2Rad(mod(Task.TargetLoc(it)+180,360))),Task.Eccentricity(it)*sin(klDeg2Rad(mod(Task.TargetLoc(it)+180,360)))],4);
-            end
-            if any(inWind)
-                Task.SaccEnd(it) = tmpT(find(inWind,1));
-            end
-            if ~isnan(Task.SaccEnd(it))
-                if Task.SaccEnd(it) > (100 + Task.SRT(it))
-%                     Task.Correct(it) = 0;
-                end
-            end
-        else
+% %         if Eyes.Good
+% %             tmpT = Eyes.Times(Eyes.Times >= Task.StimOnsetToTrial(it) & Eyes.Times <= Task.SRT(it)+3000);
+% %             tmpX = Eyes.X(Eyes.Times >= Task.StimOnsetToTrial(it) & Eyes.Times <= Task.SRT(it)+3000);
+% %             tmpY = Eyes.Y(Eyes.Times >= Task.StimOnsetToTrial(it) & Eyes.Times <= Task.SRT(it)+3000);
+% %             if strcmpi(Task.TrialType{it},'pro')
+% %                 inWind = klInBox(tmpX,tmpY,[Task.Eccentricity(it)*cos(klDeg2Rad(Task.TargetLoc(it))),Task.Eccentricity(it)*sin(klDeg2Rad(Task.TargetLoc(it)))],4);
+% %             else
+% %                 inWind = klInBox(tmpX,tmpY,[Task.Eccentricity(it)*cos(klDeg2Rad(mod(Task.TargetLoc(it)+180,360))),Task.Eccentricity(it)*sin(klDeg2Rad(mod(Task.TargetLoc(it)+180,360)))],4);
+% %             end
+% %             if any(inWind)
+% %                 Task.SaccEnd(it) = tmpT(find(inWind,1));
+% %             end
+% %             if ~isnan(Task.SaccEnd(it))
+% %                 if Task.SaccEnd(it) > (100 + Task.SRT(it))
+% % %                     Task.Correct(it) = 0;
+% %                 end
+% %             end
+% %         else
             Task.SaccEnd(it) = nan;
-        end
+% %         end
     end
     
     if any(trCodes == events.Abort_)
@@ -333,29 +333,29 @@ for it = 1:nTrs
         Task.Error(it) = 0;
     end
     if Task.Abort(it) == 0 && ~isnan(Task.SRT(it))
-        if Eyes.Good
-            mnX = nanmean(Eyes.X(Eyes.Times >= (Task.SRT(it) + 50) & Eyes.Times <= (Task.SRT(it) + 100)));
-            mnY = nanmean(Eyes.Y(Eyes.Times >= (Task.SRT(it) + 50) & Eyes.Times <= (Task.SRT(it) + 100)));
-            Task.EndX(it) = mnX; Task.EndY(it) = mnY;
-            % Figure out which stimulus was the closest
-            tmpLocs(:,1) = cos(klDeg2Rad(Task.StimLoc(it,:))).*Task.Eccentricity(it);
-            tmpLocs(:,2) = sin(klDeg2Rad(Task.StimLoc(it,:))).*Task.Eccentricity(it);
-            stmDist = klEucDist([mnX,mnY],tmpLocs);
-            tmpDist = find(stmDist == min(stmDist),1);
-            if ~isempty(tmpDist), Task.EndStimInd(it) = tmpDist; Task.EndStimLoc(it) = Task.StimLoc(it,Task.EndStimInd(it)); end
-            Task.EndEcc(it)   = sqrt(mnY^2 + mnX^2);
-            baseAngle = klRad2Deg(atan(abs(mnY)/abs(mnX)));
-            if (mnX > 0) && (mnY > 0)
-                Task.EndAngle(it) = baseAngle;
-            elseif (mnX < 0) && (mnY > 0)
-                Task.EndAngle(it) = 180-baseAngle;
-            elseif (mnX < 0) && (mnY < 0)
-                Task.EndAngle(it) = baseAngle + 180;
-            elseif (mnX > 0) && (mnY < 0)
-                Task.EndAngle(it) = 360-baseAngle;
-            end
-            
-        end
+% %         if Eyes.Good
+% %             mnX = nanmean(Eyes.X(Eyes.Times >= (Task.SRT(it) + 50) & Eyes.Times <= (Task.SRT(it) + 100)));
+% %             mnY = nanmean(Eyes.Y(Eyes.Times >= (Task.SRT(it) + 50) & Eyes.Times <= (Task.SRT(it) + 100)));
+% %             Task.EndX(it) = mnX; Task.EndY(it) = mnY;
+% %             % Figure out which stimulus was the closest
+% %             tmpLocs(:,1) = cos(klDeg2Rad(Task.StimLoc(it,:))).*Task.Eccentricity(it);
+% %             tmpLocs(:,2) = sin(klDeg2Rad(Task.StimLoc(it,:))).*Task.Eccentricity(it);
+% %             stmDist = klEucDist([mnX,mnY],tmpLocs);
+% %             tmpDist = find(stmDist == min(stmDist),1);
+% %             if ~isempty(tmpDist), Task.EndStimInd(it) = tmpDist; Task.EndStimLoc(it) = Task.StimLoc(it,Task.EndStimInd(it)); end
+% %             Task.EndEcc(it)   = sqrt(mnY^2 + mnX^2);
+% %             baseAngle = klRad2Deg(atan(abs(mnY)/abs(mnX)));
+% %             if (mnX > 0) && (mnY > 0)
+% %                 Task.EndAngle(it) = baseAngle;
+% %             elseif (mnX < 0) && (mnY > 0)
+% %                 Task.EndAngle(it) = 180-baseAngle;
+% %             elseif (mnX < 0) && (mnY < 0)
+% %                 Task.EndAngle(it) = baseAngle + 180;
+% %             elseif (mnX > 0) && (mnY < 0)
+% %                 Task.EndAngle(it) = 360-baseAngle;
+% %             end
+% %             
+% %         end
     end
 end
 

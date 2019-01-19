@@ -5,6 +5,11 @@
 
 function [Task, Eyes, PD, EEG, tdt] = klGetTask(sessName,varargin)
 
+Eyes =0;
+PD = 0;
+EEG = 0;
+tdt = 0;
+
 tebaMount = '/mnt/schalllab';
 
 % Set defaults
@@ -14,7 +19,7 @@ fresh = 1;
 rawDir = [tebaMount,'/data/Kaleb/antiSessions/'];%'/mnt/teba/data/Kaleb/antiSessions/';
 % rawDir = '/mnt/teba/Users/Kaleb/proAntiRaw';
 procDir = [tebaMount,'/Users/Kaleb/proAntiProcessed'];%'/mnt/teba/Users/Kaleb/proAntiProcessed/';
-doSave = 1;
+doSave = 0;
 doLive = 0;
 
 % Decode varargin
@@ -178,46 +183,46 @@ else
     end
     % Get Eye Positions
     if ~eyesDone
-        Eyes = klGetEyesTDT(sessName,'-r',rawDir,'-proc',procDir,'-s',doSave,'-i',doInvert);
+%         Eyes = klGetEyesTDT(sessName,'-r',rawDir,'-proc',procDir,'-s',doSave,'-i',doInvert);
     end
     
     if doEEG
-        EEG = klGetEEGTDT(sessName,'-r',rawDir,'-proc',procDir,'-s',doSave);
+%         EEG = klGetEEGTDT(sessName,'-r',rawDir,'-proc',procDir,'-s',doSave);
     else
         EEG = [];
     end
     
-    pdRaw = TDTbin2mat(fullfile(rawDir,sessName),'TYPE',{'streams'},'STORE',{pdStr},'VERBOSE',0);
-    pdStream = pdRaw.streams.(pdStr).data;
+% %     pdRaw = TDTbin2mat(fullfile(rawDir,sessName),'TYPE',{'streams'},'STORE',{pdStr},'VERBOSE',0);
+% %     pdStream = pdRaw.streams.(pdStr).data;
     % for some reason, pdTime, if turned into milliseconds, gives 0 dt
     % values which really mess with the saccade detector... I guess all of
     % this will need to be done post-detection
-    if length(pdStream)==length(Eyes.X)%pdRaw.streams.(pdStr).fs > 2000
-        load('slowSamplingRate.mat');
-        pdTime = (0:(length(pdStream)-1)).*(1/sampRate);
-        pdRate = sampRate;
-    else
-        pdTime = (0:(length(pdStream)-1)).*(1/pdRaw.streams.(pdStr).fs);
-        pdRate = pdRaw.streams.(pdStr).fs;
-    end
-    if doUS
-        usRaw = TDTbin2mat(fullfile(rawDir,sessName),'TYPE',{'streams'},'STORE',{'US__'},'VERBOSE',0);
-        usStream = usRaw.streams.US__.data;
-        usTime = (0:(length(usStream)-1)).*(1/usRaw.streams.US__.fs);
-    else
-        usTime = pdTime; usStream = zeros(1,length(pdStream)); usRaw = [];
-    end
+% %     if length(pdStream)==length(Eyes.X)%pdRaw.streams.(pdStr).fs > 2000
+% %         load('slowSamplingRate.mat');
+% %         pdTime = (0:(length(pdStream)-1)).*(1/sampRate);
+% %         pdRate = sampRate;
+% %     else
+% %         pdTime = (0:(length(pdStream)-1)).*(1/pdRaw.streams.(pdStr).fs);
+% %         pdRate = pdRaw.streams.(pdStr).fs;
+% %     end
+% %     if doUS
+% %         usRaw = TDTbin2mat(fullfile(rawDir,sessName),'TYPE',{'streams'},'STORE',{'US__'},'VERBOSE',0);
+% %         usStream = usRaw.streams.US__.data;
+% %         usTime = (0:(length(usStream)-1)).*(1/usRaw.streams.US__.fs);
+% %     else
+% %         usTime = pdTime; usStream = zeros(1,length(pdStream)); usRaw = [];
+% %     end
     
     % Get reward vector
-    rwdRaw = TDTbin2mat(fullfile(rawDir,sessName),'TYPE',{'streams'},'STORE',{'Rewd'},'VERBOSE',0);
-    try
-        rwdStream = rwdRaw.streams.Rewd.data;
-        rwdTime = (0:(length(rwdStream)-1)).*(1/rwdRaw.streams.Rewd.fs);
-    catch
-        rwdStream = nan(1,length(Eyes.X));
-        rwdTime = Eyes.Times;
-    end
-    tdt = [];
+% %     rwdRaw = TDTbin2mat(fullfile(rawDir,sessName),'TYPE',{'streams'},'STORE',{'Rewd'},'VERBOSE',0);
+% %     try
+% %         rwdStream = rwdRaw.streams.Rewd.data;
+% %         rwdTime = (0:(length(rwdStream)-1)).*(1/rwdRaw.streams.Rewd.fs);
+% %     catch
+% %         rwdStream = nan(1,length(Eyes.X));
+% %         rwdTime = Eyes.Times;
+% %     end
+% %     tdt = [];
 end
 
 % Find trial starts and ends
@@ -282,7 +287,8 @@ else
             case mgHeader
                 taskTmp{it} = klDecodeMG(trialCodes(trHeads==uTasks(it),1),trialTimes(trHeads==uTasks(it),1),EV,Eyes,'-p',print,'-np',nPrint);
             case antiHeader
-                taskTmp{it} = klDecodeAnti(trialCodes(trHeads==uTasks(it),1),trialTimes(trHeads==uTasks(it),1),EV,Eyes,'-p',print,'-np',nPrint);
+%                 taskTmp{it} = klDecodeAnti(trialCodes(trHeads==uTasks(it),1),trialTimes(trHeads==uTasks(it),1),EV,Eyes,'-p',print,'-np',nPrint);
+                taskTmp{it} = klDecodeAnti(trialCodes(trHeads==uTasks(it),1),trialTimes(trHeads==uTasks(it),1),EV,0,'-p',print,'-np',nPrint);
             case {searchHeader,capHeader}
                 taskTmp{it} = klDecodeSearch(trialCodes(trHeads==uTasks(it),1),trialTimes(trHeads==uTasks(it),1),EV,Eyes,'-p',print,'-np',nPrint);
         end
@@ -305,7 +311,7 @@ else
     
     if doLive, pdMat = nan; pdMatTime = nan;
     else
-            [pdMat,pdMatTime] = klPlaceStream(Task,pdStream,'-p',[-2000,3000],'-s',pdRate);
+% %             [pdMat,pdMatTime] = klPlaceStream(Task,pdStream,'-p',[-2000,3000],'-s',pdRate);
     end
 %     if any(isfinite(
 % 
@@ -351,100 +357,100 @@ else
 %     Task.AlignTimes = Task.TargOnPD;
     
     % Get SRT and SaccEnd here from Eyes
-    if Eyes.Good
-        Task.SRT_TEMPO = Task.SRT;
-        % Create filter for Eye Position
-        f=designfilt('lowpassfir','FilterOrder',3,'PassbandFrequency',.00001,'SampleRate',1000/nanmean(diff(Eyes.Times)),'StopbandFrequency',50);
-        xFilt = filter(f,Eyes.X);
-        yFilt = filter(f,Eyes.Y);
-        
-        xMat = klPlaceStream(Task,xFilt);%,'-s',1000/nanmean(diff(Eyes.Times)));%Eyes.X);
-        [yMat, matTimes] = klPlaceStream(Task,yFilt);%,'-s',1000/nanmean(diff(Eyes.Times)));%Eyes.Y);
-        [rwdMat,rwdTimes] = klPlaceStream(Task,rwdStream);
-        printStr = [];
-        Task.RewardOn = nan(nTrs,1);
-        Task.RewardOff = nan(nTrs,1);
-        for it = 1:size(xMat,1)
-            if mod(it,100)==0
-                fprintf(repmat('\b',1,length(printStr)));
-                printStr = sprintf('Getting SRT for trial %d (of %d)...',it,size(xMat,1));
-                fprintf(printStr);
-            end
-            [tmpStart,tmpEnd] = klSaccDetectNew(xMat(it,:),yMat(it,:),matTimes,'-f',f);
-            if any(tmpStart > 0) && ~isnan(tmpStart(1))
-                Task.SRT(it) = tmpStart(find(tmpStart > 0,1)) - Task.GoCue(it);
-                try Task.SaccEnd(it) = tmpEnd(find(tmpStart > 0,1)) - Task.GoCue(it); catch Task.SaccEnd(it) = nan; end
-                Task.fromEyes(it) = 1;
-                mnX = nanmean(xMat(it,matTimes >= Task.SRT(it)+50 & matTimes <= Task.SRT(it)+100));
-                mnY = nanmean(yMat(it,matTimes >= Task.SRT(it)+50 & matTimes <= Task.SRT(it)+100));
-                Task.EndX(it) = mnX; Task.EndY(it) = mnY;
-                tmpLocs(:,1) = cos(klDeg2Rad(Task.StimLoc(it,:))).*Task.Eccentricity(it);
-                tmpLocs(:,2) = sin(klDeg2Rad(Task.StimLoc(it,:))).*Task.Eccentricity(it);
-                stmDist = klEucDist([mnX,mnY],tmpLocs);
-                tmpDist = find(stmDist == min(stmDist),1);
-                if ~isempty(tmpDist), Task.EndStimInd(it) = tmpDist; Task.EndStimLoc(it) = Task.StimLoc(it,Task.EndStimInd(it)); end
-                Task.EndEcc(it)   = sqrt(mnY^2 + mnX^2);
-                baseAngle = klRad2Deg(atan(abs(mnY)/abs(mnX)));
-                if (mnX > 0) && (mnY > 0)
-                    Task.EndAngle(it) = baseAngle;
-                elseif (mnX < 0) && (mnY > 0)
-                    Task.EndAngle(it) = 180-baseAngle;
-                elseif (mnX < 0) && (mnY < 0)
-                    Task.EndAngle(it) = baseAngle + 180;
-                elseif (mnX > 0) && (mnY < 0)
-                    Task.EndAngle(it) = 360-baseAngle;
-                end
-            end
-            % Get reward times
-            if Task.Correct(it)==1 && any(rwdMat(it,:) > range(rwdStream).*.5)
-                Task.RewardOn(it) = rwdTimes(find(rwdMat(it,:) > range(rwdStream).*.5,1));
-                Task.RewardOff(it) = rwdTimes(find(rwdMat(it,:) < range(rwdStream).*.5 & rwdTimes > Task.RewardOn(it),1));
-            end
-        end
-    PD.matT             = pdMatTime;
-    PD.pdStream         = pdStream;
-%     PD.onMat    = pdMat;
-        
-    if doUS && ~doLive
-        [usMat,usT] = klPlaceStream(Task,usStream,'-s',1000/usRaw.streams.US__.fs,'-as',Task.StimOnsetToTrial);
-        Task.USStim = nan(size(usMat,1),1);
-        Task.StimTrial = nan(size(usMat,1),1);
-        usCrit = range(usStream).*.5+min(usStream);
-        for i = 1:size(usMat,1)
-            tmp = find(usMat(i,:) > usCrit,1);
-            if ~isempty(tmp)
-                Task.USStim(i) = usT(tmp); 
-                if Task.USStim(i) < 500% Task.Tone(i)%SRT(i)
-                    Task.StimTrial(i) = 1;
-                else
-                    Task.StimTrial(i) = 0;
-                end
-            else
-                Task.USStim(i) = nan;
-                Task.StimTrial(i) = 0;
-            end
-
-        end
-    end
-    if print
-        fprintf('\n');
-        printStr = 'Saving Behavior...';
-        fprintf(printStr);
-    end
-    if doSave
-        save(sprintf('%sBehav.mat',saveDir),'Task');
-%         delete(sprintf('%sevsRaw.mat',saveDir));
-    end
-    end
-    fprintf(repmat('\b',1,length(printStr)));
-    fprintf('Done!\n');
+% % %     if Eyes.Good
+% % %         Task.SRT_TEMPO = Task.SRT;
+% % %         % Create filter for Eye Position
+% % %         f=designfilt('lowpassfir','FilterOrder',3,'PassbandFrequency',.00001,'SampleRate',1000/nanmean(diff(Eyes.Times)),'StopbandFrequency',50);
+% % %         xFilt = filter(f,Eyes.X);
+% % %         yFilt = filter(f,Eyes.Y);
+% % %         
+% % %         xMat = klPlaceStream(Task,xFilt);%,'-s',1000/nanmean(diff(Eyes.Times)));%Eyes.X);
+% % %         [yMat, matTimes] = klPlaceStream(Task,yFilt);%,'-s',1000/nanmean(diff(Eyes.Times)));%Eyes.Y);
+% % %         [rwdMat,rwdTimes] = klPlaceStream(Task,rwdStream);
+% % %         printStr = [];
+% % %         Task.RewardOn = nan(nTrs,1);
+% % %         Task.RewardOff = nan(nTrs,1);
+% % %         for it = 1:size(xMat,1)
+% % %             if mod(it,100)==0
+% % %                 fprintf(repmat('\b',1,length(printStr)));
+% % %                 printStr = sprintf('Getting SRT for trial %d (of %d)...',it,size(xMat,1));
+% % %                 fprintf(printStr);
+% % %             end
+% % %             [tmpStart,tmpEnd] = klSaccDetectNew(xMat(it,:),yMat(it,:),matTimes,'-f',f);
+% % %             if any(tmpStart > 0) && ~isnan(tmpStart(1))
+% % %                 Task.SRT(it) = tmpStart(find(tmpStart > 0,1)) - Task.GoCue(it);
+% % %                 try Task.SaccEnd(it) = tmpEnd(find(tmpStart > 0,1)) - Task.GoCue(it); catch Task.SaccEnd(it) = nan; end
+% % %                 Task.fromEyes(it) = 1;
+% % %                 mnX = nanmean(xMat(it,matTimes >= Task.SRT(it)+50 & matTimes <= Task.SRT(it)+100));
+% % %                 mnY = nanmean(yMat(it,matTimes >= Task.SRT(it)+50 & matTimes <= Task.SRT(it)+100));
+% % %                 Task.EndX(it) = mnX; Task.EndY(it) = mnY;
+% % %                 tmpLocs(:,1) = cos(klDeg2Rad(Task.StimLoc(it,:))).*Task.Eccentricity(it);
+% % %                 tmpLocs(:,2) = sin(klDeg2Rad(Task.StimLoc(it,:))).*Task.Eccentricity(it);
+% % %                 stmDist = klEucDist([mnX,mnY],tmpLocs);
+% % %                 tmpDist = find(stmDist == min(stmDist),1);
+% % %                 if ~isempty(tmpDist), Task.EndStimInd(it) = tmpDist; Task.EndStimLoc(it) = Task.StimLoc(it,Task.EndStimInd(it)); end
+% % %                 Task.EndEcc(it)   = sqrt(mnY^2 + mnX^2);
+% % %                 baseAngle = klRad2Deg(atan(abs(mnY)/abs(mnX)));
+% % %                 if (mnX > 0) && (mnY > 0)
+% % %                     Task.EndAngle(it) = baseAngle;
+% % %                 elseif (mnX < 0) && (mnY > 0)
+% % %                     Task.EndAngle(it) = 180-baseAngle;
+% % %                 elseif (mnX < 0) && (mnY < 0)
+% % %                     Task.EndAngle(it) = baseAngle + 180;
+% % %                 elseif (mnX > 0) && (mnY < 0)
+% % %                     Task.EndAngle(it) = 360-baseAngle;
+% % %                 end
+% % %             end
+% % %             % Get reward times
+% % %             if Task.Correct(it)==1 && any(rwdMat(it,:) > range(rwdStream).*.5)
+% % %                 Task.RewardOn(it) = rwdTimes(find(rwdMat(it,:) > range(rwdStream).*.5,1));
+% % %                 Task.RewardOff(it) = rwdTimes(find(rwdMat(it,:) < range(rwdStream).*.5 & rwdTimes > Task.RewardOn(it),1));
+% % %             end
+% % %         end
+% % %     PD.matT             = pdMatTime;
+% % %     PD.pdStream         = pdStream;
+% % % %     PD.onMat    = pdMat;
+% % %         
+% % %     if doUS && ~doLive
+% % %         [usMat,usT] = klPlaceStream(Task,usStream,'-s',1000/usRaw.streams.US__.fs,'-as',Task.StimOnsetToTrial);
+% % %         Task.USStim = nan(size(usMat,1),1);
+% % %         Task.StimTrial = nan(size(usMat,1),1);
+% % %         usCrit = range(usStream).*.5+min(usStream);
+% % %         for i = 1:size(usMat,1)
+% % %             tmp = find(usMat(i,:) > usCrit,1);
+% % %             if ~isempty(tmp)
+% % %                 Task.USStim(i) = usT(tmp); 
+% % %                 if Task.USStim(i) < 500% Task.Tone(i)%SRT(i)
+% % %                     Task.StimTrial(i) = 1;
+% % %                 else
+% % %                     Task.StimTrial(i) = 0;
+% % %                 end
+% % %             else
+% % %                 Task.USStim(i) = nan;
+% % %                 Task.StimTrial(i) = 0;
+% % %             end
+% % % 
+% % %         end
+% % %     end
+% % %     if print
+% % %         fprintf('\n');
+% % %         printStr = 'Saving Behavior...';
+% % %         fprintf(printStr);
+% % %     end
+% % %     if doSave
+% % %         save(sprintf('%sBehav.mat',saveDir),'Task');
+% % % %         delete(sprintf('%sevsRaw.mat',saveDir));
+% % %     end
+% % %     end
+% % %     fprintf(repmat('\b',1,length(printStr)));
+% % %     fprintf('Done!\n');
     
     if ~doLive
-        [pdStreamMat,pdStreamT] = klPlaceStream(Task,pdStream);
+%         [pdStreamMat,pdStreamT] = klPlaceStream(Task,pdStream);
 %     PD.streamMat = pdStreamMat;
-        PD.matT        = pdStreamT;
+%         PD.matT        = pdStreamT;
     else
-        PD.matT = nan;
+%         PD.matT = nan;
     end
     
 end
