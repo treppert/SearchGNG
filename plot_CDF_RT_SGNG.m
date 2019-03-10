@@ -8,6 +8,8 @@ respTime = new_struct({'clrSim','clrDiff'}, 'dim',[1,NUM_SESSION]);
 respTime = struct('arLow',respTime, 'arHigh',respTime);
 respTime = struct('green',respTime, 'red',respTime);
 
+pCorr = respTime;
+
 for kk = 1:NUM_SESSION
   
   %index by color similarity of the singleton and distractors
@@ -23,6 +25,15 @@ for kk = 1:NUM_SESSION
   %index by singleton aspect ratio
   idx_ar_low = (Task(kk).SingletonDiff == 2);
   idx_ar_high = (Task(kk).SingletonDiff == 4);
+  
+  %index by trial outcome
+  idx_corr = (Task(kk).Correct == 1);
+  
+  %compute percent correct
+  pCorr.red.arHigh(kk).clrDiff = sum(idx_clr_diff & idx_sing_red & idx_ar_high & idx_corr) / sum(idx_clr_diff & idx_sing_red & idx_ar_high);
+  pCorr.red.arHigh(kk).clrSim = sum(idx_clr_sim & (idx_sing_red | idx_sing_nRed) & idx_ar_high & idx_corr) / sum(idx_clr_sim & (idx_sing_red | idx_sing_nRed) & idx_ar_high);
+  pCorr.red.arLow(kk).clrDiff = sum(idx_clr_diff & idx_sing_red & idx_ar_high & idx_corr) / sum(idx_clr_diff & idx_sing_red & idx_ar_low);
+  pCorr.red.arLow(kk).clrSim = sum(idx_clr_sim & (idx_sing_red | idx_sing_nRed) & idx_ar_high & idx_corr) / sum(idx_clr_sim & (idx_sing_red | idx_sing_nRed) & idx_ar_low);
   
   %collect RT data
   respTime.red.arHigh(kk).clrDiff = Task(kk).SRT(idx_clr_diff & idx_sing_red & idx_ar_high);
