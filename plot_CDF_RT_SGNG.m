@@ -67,7 +67,7 @@ plot(xx.red.arHigh.clrSim, yy.red.arHigh.clrSim, 'r-')
 plot(xx.red.arLow.clrDiff, yy.red.arLow.clrDiff, 'k--')
 plot(xx.red.arLow.clrSim, yy.red.arLow.clrSim, 'r--')
 
-ppretty()
+ppretty([6.4,4])
 
 end%fxn:plot_CDF_RT_SGNG()
 
