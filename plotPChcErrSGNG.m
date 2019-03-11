@@ -20,12 +20,15 @@ for kk = 1:NUM_SESSION
   
   %compute percent correct
   pErr.AREasy(kk).clrEasy = sum(idxClrEasy & idxAREasy & idxErr) / sum(idxClrEasy & idxAREasy);
-  pErr.AREasy(kk).clrHard = sum(idxClrHar & idxAREasy & idxErr) / sum(idxClrHar & idxAREasy);
+  pErr.AREasy(kk).clrHard = sum(idxClrHard & idxAREasy & idxErr) / sum(idxClrHard & idxAREasy);
   pErr.ARHard(kk).clrEasy = sum(idxClrEasy & idxAREasy & idxErr) / sum(idxClrEasy & idxARHard);
-  pErr.ARHard(kk).clrHard = sum(idxClrHard & idxAREasy & idxErr) / sum(idxClrHar & idxARHard);
+  pErr.ARHard(kk).clrHard = sum(idxClrHard & idxAREasy & idxErr) / sum(idxClrHard & idxARHard);
   
 end%for:session(kk)
 
+%% Plotting
+
+%BAR PLOT
 yBar = [mean([pErr.AREasy.clrEasy]), mean([pErr.AREasy.clrHard]), mean([pErr.ARHard.clrEasy]), mean([pErr.ARHard.clrHard])];
 sdBar = [std([pErr.AREasy.clrEasy]), std([pErr.AREasy.clrHard]), std([pErr.ARHard.clrEasy]), std([pErr.ARHard.clrHard])];
 
@@ -33,6 +36,16 @@ figure(); hold on
 bar((1:4), yBar, 'FaceColor','k')
 errorbar_no_caps((1:4), yBar, 'err',sdBar/sqrt(NUM_SESSION))
 ppretty([4,5])
+
+pause(0.25)
+
+%LINE PLOT
+figure(); hold on
+plot((1:NUM_SESSION), [pErr.AREasy.clrEasy], 'k-')
+plot((1:NUM_SESSION), [pErr.AREasy.clrHard], 'r-')
+plot((1:NUM_SESSION), [pErr.ARHard.clrEasy], 'k-', 'LineWidth',1.5)
+plot((1:NUM_SESSION), [pErr.ARHard.clrHard], 'r-', 'LineWidth',1.5)
+ppretty([6.4,4])
 
 end%plotPChcErrSGNG()
 

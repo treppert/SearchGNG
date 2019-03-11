@@ -74,88 +74,91 @@ Task.ExtinguishTime = nan(nTrs,1);
 Task.VertIsPro = nan(nTrs,1);
 Task.StimVertical = nan(nTrs,1);
 Task.StimHorizontal = nan(nTrs,1);
-for it = 1:nTrs
-    if print && mod(it,nPrint) == 0
+
+jjRemoveSetSize = []; %keep track of trials to remove with set size ~= 8
+
+for jj = 1:nTrs
+    if print && mod(jj,nPrint) == 0
         if exist('printStr','var')
             for ib = 1:length(printStr)
                 fprintf('\b');
             end
         end
-        printStr = sprintf('Working on Trial %d of %d...\n',it,nTrs);
+        printStr = sprintf('Working on Trial %d of %d...\n',jj,nTrs);
         fprintf(printStr);
     end
-    trCodes = trialCodes{it};%inEvs(antiHeadInds(it):endInfos(it));
-    trTimes = trialTimes{it};%inEvTms(antiHeadInds(it):endInfos(it));
-    allCodes(it,1:evntCnt(it)) = trCodes;
+    trCodes = trialCodes{jj};%inEvs(antiHeadInds(it):endInfos(it));
+    trTimes = trialTimes{jj};%inEvTms(antiHeadInds(it):endInfos(it));
+    allCodes(jj,1:evntCnt(jj)) = trCodes;
     
     %% Get timings
 %     if it > 1048
 %             keyboard
 %     end
-    Task.StimOnsetToTrial(it)      = getEvTime(trCodes,trTimes,events.Target_);
-    Task.SRT(it)            = getEvTime(trCodes,trTimes,events.Saccade_);
-    Task.SaccEnd(it)        = getEvTime(trCodes,trTimes,events.Decide_);
-    Task.Reward(it)         = getEvTime(trCodes,trTimes,events.Reward_);
-    Task.Tone(it)           = getEvTime(trCodes,trTimes,events.Tone_);
-    Task.RewardTone(it)     = getEvTime(trCodes,trTimes,events.Reward_tone);
-    Task.ErrorTone(it)      = getEvTime(trCodes,trTimes,events.Error_tone);
-    Task.FixSpotOn(it)      = getEvTime(trCodes,trTimes,events.FixSpotOn_);
-    Task.FixSpotOff(it)     = getEvTime(trCodes,trTimes,events.FixSpotOff_);
-    Task.GoCue(it)          = getEvTime(trCodes,trTimes,events.FixSpotOff_);
-    Task.Fixation(it)       = getEvTime(trCodes,trTimes,events.Fixate_);
+    Task.StimOnsetToTrial(jj)      = getEvTime(trCodes,trTimes,events.Target_);
+    Task.SRT(jj)            = getEvTime(trCodes,trTimes,events.Saccade_);
+    Task.SaccEnd(jj)        = getEvTime(trCodes,trTimes,events.Decide_);
+    Task.Reward(jj)         = getEvTime(trCodes,trTimes,events.Reward_);
+    Task.Tone(jj)           = getEvTime(trCodes,trTimes,events.Tone_);
+    Task.RewardTone(jj)     = getEvTime(trCodes,trTimes,events.Reward_tone);
+    Task.ErrorTone(jj)      = getEvTime(trCodes,trTimes,events.Error_tone);
+    Task.FixSpotOn(jj)      = getEvTime(trCodes,trTimes,events.FixSpotOn_);
+    Task.FixSpotOff(jj)     = getEvTime(trCodes,trTimes,events.FixSpotOff_);
+    Task.Fixation(jj)       = getEvTime(trCodes,trTimes,events.Fixate_);
     
     %% Get Stim Colors
     colorInfo = unique(trCodes(trCodes >= 700 & trCodes < 800));
+    
     if any(colorInfo >= 700 & colorInfo < 710)
-        Task.SingletonColor(it) = colorInfo(colorInfo >= 700 & colorInfo < 710) - 700;
+        Task.SingletonColor(jj) = colorInfo(colorInfo >= 700 & colorInfo < 710) - 700;
     else
-        Task.SingletonColor(it) = nan;
+        Task.SingletonColor(jj) = nan;
     end
     if any(colorInfo >= 710 & colorInfo < 720)
-        Task.DistractorColor(it) = colorInfo(colorInfo >= 710 & colorInfo < 720) - 710;
+        Task.DistractorColor(jj) = colorInfo(colorInfo >= 710 & colorInfo < 720) - 710;
     else
-        Task.DistractorColor(it) = nan;
+        Task.DistractorColor(jj) = nan;
     end
     if any(colorInfo >= 720 & colorInfo < 730)
-        Task.CueType(it) = colorInfo(find(colorInfo >= 720 & colorInfo < 730,1)) - 720;
+        Task.CueType(jj) = colorInfo(find(colorInfo >= 720 & colorInfo < 730,1)) - 720;
     else
-        Task.CueType(it) = nan;
+        Task.CueType(jj) = nan;
     end
     if any(colorInfo >= 730 & colorInfo < 740)
-        Task.CueColor(it) = colorInfo(find(colorInfo >= 730 & colorInfo < 740,1)) - 730;
+        Task.CueColor(jj) = colorInfo(find(colorInfo >= 730 & colorInfo < 740,1)) - 730;
     else
-        Task.CueColor(it) = nan;
+        Task.CueColor(jj) = nan;
     end
     
     %% Get general flags about task
     if any(trCodes >= 400 & trCodes < 410)
-        Task.ExtinguishType(it) = trCodes(find(trCodes >= 400 & trCodes < 410,1)) - 400;
+        Task.ExtinguishType(jj) = trCodes(find(trCodes >= 400 & trCodes < 410,1)) - 400;
     end
     if any(trCodes >= 410 & trCodes < 420)
-        Task.ExtinguishTime(it) = trCodes(find(trCodes >= 410 & trCodes < 420,1)) - 410;
+        Task.ExtinguishTime(jj) = trCodes(find(trCodes >= 410 & trCodes < 420,1)) - 410;
     end
     if any(trCodes >= 440 & trCodes < 450)
-        Task.IsRepeat(it) = trCodes(find(trCodes >= 440 & trCodes < 450,1)) - 440;
+        Task.IsRepeat(jj) = trCodes(find(trCodes >= 440 & trCodes < 450,1)) - 440;
     else
-        Task.IsRepeat(it) = nan;
+        Task.IsRepeat(jj) = nan;
     end
     if any(trCodes >= 450 & trCodes < 460)
-        Task.HardColor(it) = trCodes(find(trCodes >= 450 & trCodes < 460,1)) - 450;
+        Task.HardColor(jj) = trCodes(find(trCodes >= 450 & trCodes < 460,1)) - 450;
     else
-        Task.HardColor(it) = nan;
+        Task.HardColor(jj) = nan;
     end
     if any(trCodes >= 750 & trCodes < 760)
-        Task.VertIsPro(it) = trCodes(find(trCodes >= 750 & trCodes < 760,1)) - 750;
+        Task.VertIsPro(jj) = trCodes(find(trCodes >= 750 & trCodes < 760,1)) - 750;
     else
-        Task.VertIsPro(it) = nan;
+        Task.VertIsPro(jj) = nan;
     end
     
     %% Get Stim Locations
     if any (trCodes >= 900 & trCodes < 1000)
         thisCodes = unique(trCodes(trCodes >= 900 & trCodes < 920));
-        Task.Eccentricity(it) = thisCodes(1) - 900;
+        Task.Eccentricity(jj) = thisCodes(1) - 900;
     else
-        Task.Eccentricity(it) = nan;
+        Task.Eccentricity(jj) = nan;
     end
     locCodes = trCodes(trCodes >= 5000 & trCodes < 6000);
     diffCodes = trCodes(trCodes >= 6000 & trCodes <= 7000);
@@ -163,20 +166,27 @@ for it = 1:nTrs
         continue
     end
     if any(trCodes >= 420 & trCodes < 430)
-        Task.StimCond(it) = trCodes(find(trCodes >= 420 & trCodes < 430,1)) - 420;
-        Task.StimIntended(it) = Task.StimCond(it) > 0;
+        Task.StimCond(jj) = trCodes(find(trCodes >= 420 & trCodes < 430,1)) - 420;
+        Task.StimIntended(jj) = Task.StimCond(jj) > 0;
     end
 %     Task.SetSize(it) = length(diffCodes);
-    Task.SetSize(it) = length(locCodes);
+    Task.SetSize(jj) = length(locCodes);
+    
+    %NOTE: only working with set size eight
+    if (Task.SetSize(jj) ~= 8)
+      jjRemoveSetSize = [jjRemoveSetSize, jj];
+      continue
+    end
+    
     nLoops = 0;
-    while (nLoops < length(diffCodes)) && length(unique(mod(locCodes,360/Task.SetSize(it)))) > 1
-        uCodes = unique(mod(locCodes,360/Task.SetSize(it)));
-        if length(uCodes) ~= Task.SetSize(it)
+    while (nLoops < length(diffCodes)) && length(unique(mod(locCodes,360/Task.SetSize(jj)))) > 1
+        uCodes = unique(mod(locCodes,360/Task.SetSize(jj)));
+        if length(uCodes) ~= Task.SetSize(jj)
             nLoops = nLoops + 1;
             continue
         else
-            [n,c] = hist(mod(locCodes,360/Task.SetSize(it)),uCodes);
-            locCodes(mod(locCodes,360/Task.SetSize(it)) == c(n==min(n))) = [];
+            [n,c] = hist(mod(locCodes,360/Task.SetSize(jj)),uCodes);
+            locCodes(mod(locCodes,360/Task.SetSize(jj)) == c(n==min(n))) = [];
             nLoops = nLoops+1;
         end
     end
@@ -184,33 +194,33 @@ for it = 1:nTrs
         continue;
     end
     if length(locCodes)
-        for is = 1:Task.SetSize(it)
-            Task.StimLoc(it,is) = locCodes(is) - 5000;
+        for is = 1:Task.SetSize(jj)
+            Task.StimLoc(jj,is) = locCodes(is) - 5000;
             tmpDiff = trCodes(trCodes >= (6000 + (100*(is))) & trCodes < (6000 + (100*(is)+20))) - (6000 + (100*(is)));
             tmpV = (trCodes(trCodes >= (7000 + (100*(is))) & trCodes < (7000 + (100*(is)+20))) - (7000 + (100*(is))))./10;
             if ~isempty(tmpV), stimV(is) = tmpV; else stimV(is) = nan; end
             if isempty(tmpDiff)
-                Task.StimDiff(it,is) = nan;
+                Task.StimDiff(jj,is) = nan;
             else
-                Task.StimDiff(it,is) = tmpDiff(1);
+                Task.StimDiff(jj,is) = tmpDiff(1);
             end
         end
-        if any(trCodes >= 800 & trCodes < (800+Task.SetSize(it)))
-            Task.TargetLoc(it) = Task.StimLoc(it,trCodes(trCodes >= 800 & trCodes < (800 + Task.SetSize(it)))-799);
+        if any(trCodes >= 800 & trCodes < (800+Task.SetSize(jj)))
+            Task.TargetLoc(jj) = Task.StimLoc(jj,trCodes(trCodes >= 800 & trCodes < (800 + Task.SetSize(jj)))-799);
         end
     end
-    if any(isnan(Task.StimLoc(it,1:Task.SetSize(it)))) || any(hist(Task.StimLoc(it,1:Task.SetSize(it)),sort(unique(Task.StimLoc(it,1:Task.SetSize(it))))) > 1)
+    if any(isnan(Task.StimLoc(jj,1:Task.SetSize(jj)))) || any(hist(Task.StimLoc(jj,1:Task.SetSize(jj)),sort(unique(Task.StimLoc(jj,1:Task.SetSize(jj))))) > 1)
         continue
     end
-    if ~isnan(Task.TargetLoc(it))
-        stimInd = Task.StimDiff(it,Task.StimLoc(it,:)==Task.TargetLoc(it))+1;
-        Task.SingletonDiff(it) = Task.StimDiff(it,Task.StimLoc(it,:)==Task.TargetLoc(it));
-        if ~isnan(stimV(Task.StimLoc(it,:)==Task.TargetLoc(it)))
-            tmpV = stimV(Task.StimLoc(it,:)==Task.TargetLoc(it));
+    if ~isnan(Task.TargetLoc(jj))
+        stimInd = Task.StimDiff(jj,Task.StimLoc(jj,:)==Task.TargetLoc(jj))+1;
+        Task.SingletonDiff(jj) = Task.StimDiff(jj,Task.StimLoc(jj,:)==Task.TargetLoc(jj));
+        if ~isnan(stimV(Task.StimLoc(jj,:)==Task.TargetLoc(jj)))
+            tmpV = stimV(Task.StimLoc(jj,:)==Task.TargetLoc(jj));
             tmpH = 1./tmpV;
-            if ~isfinite(Task.VertIsPro(it)) || Task.VertIsPro(it)
-                Task.StimVertical(it,:) = tmpV;
-                Task.StimHorizontal(it,:) = tmpH;
+            if ~isfinite(Task.VertIsPro(jj)) || Task.VertIsPro(jj)
+                Task.StimVertical(jj,:) = tmpV;
+                Task.StimHorizontal(jj,:) = tmpH;
             end
         else
             if stimInd <= length(stimHs)
@@ -220,32 +230,32 @@ for it = 1:nTrs
                 continue;
             end
         end
-        if ~isfinite(Task.VertIsPro(it)) || Task.VertIsPro(it)
+        if ~isfinite(Task.VertIsPro(jj)) || Task.VertIsPro(jj)
             if abs(tmpH - tmpV) < .001
-                Task.TrialType{it} = 'catch';
+                Task.TrialType{jj} = 'catch';
             elseif tmpH > tmpV
-                Task.TrialType{it} = 'anti';
+                Task.TrialType{jj} = 'anti';
             elseif tmpV > tmpH
-                Task.TrialType{it} = 'pro';
+                Task.TrialType{jj} = 'pro';
             else
                 keyboard
             end
         else
             if abs(tmpH - tmpV) < .001
-                Task.TrialType{it} = 'catch';
+                Task.TrialType{jj} = 'catch';
             elseif tmpH > tmpV
-                Task.TrialType{it} = 'pro';
+                Task.TrialType{jj} = 'pro';
             elseif tmpV > tmpH
-                Task.TrialType{it} = 'anti';
+                Task.TrialType{jj} = 'anti';
             else
                 keyboard
             end
         end
         clear tmpH tmpV
         
-        if Task.SetSize(it) > 1
-            stimInd = Task.StimDiff(it,Task.StimLoc(it,:)==mod(Task.TargetLoc(it)+180,360))+1;
-            if sum(isfinite(stimV))==Task.SetSize(it)
+        if Task.SetSize(jj) > 1
+            stimInd = Task.StimDiff(jj,Task.StimLoc(jj,:)==mod(Task.TargetLoc(jj)+180,360))+1;
+            if sum(isfinite(stimV))==Task.SetSize(jj)
                 tmpV = stimV(stimInd);
                 tmpH = 1./stimV(stimInd);
             elseif stimInd <= length(stimHs)
@@ -255,51 +265,51 @@ for it = 1:nTrs
                 continue;
             end
             
-            if ~isfinite(Task.VertIsPro(it)) || Task.VertIsPro(it)
+            if ~isfinite(Task.VertIsPro(jj)) || Task.VertIsPro(jj)
                 if abs(tmpH - tmpV) < .001
-                    Task.OppType{it} = 'catch';
+                    Task.OppType{jj} = 'catch';
                 elseif tmpH > tmpV
-                    Task.OppType{it} = 'anti';
+                    Task.OppType{jj} = 'anti';
                 elseif tmpV > tmpH
-                    Task.OppType{it} = 'pro';
+                    Task.OppType{jj} = 'pro';
                 else
                     keyboard
                 end
             else
                 if abs(tmpH - tmpV) < .001
-                    Task.OppType{it} = 'catch';
+                    Task.OppType{jj} = 'catch';
                 elseif tmpH > tmpV
-                    Task.OppType{it} = 'pro';
+                    Task.OppType{jj} = 'pro';
                 elseif tmpV > tmpH
-                    Task.OppType{it} = 'anti';
+                    Task.OppType{jj} = 'anti';
                 else
                     keyboard
                 end
             end
             clear tmpH tmpV
 
-            if (strcmpi(Task.TrialType{it},'pro') && strcmpi(Task.OppType{it},'anti')) || (strcmpi(Task.TrialType{it},'anti') && strcmpi(Task.OppType{it},'pro'))
-                Task.Congruent(it) = 1;
+            if (strcmpi(Task.TrialType{jj},'pro') && strcmpi(Task.OppType{jj},'anti')) || (strcmpi(Task.TrialType{jj},'anti') && strcmpi(Task.OppType{jj},'pro'))
+                Task.Congruent(jj) = 1;
                 
-            elseif strcmpi(Task.TrialType{it},Task.OppType{it})
-                Task.Congruent(it) = 0;
+            elseif strcmpi(Task.TrialType{jj},Task.OppType{jj})
+                Task.Congruent(jj) = 0;
             else
-                Task.Congruent(it) = 2;
+                Task.Congruent(jj) = 2;
             end
             
         else
-            Task.OppType{it} = 'NA';
-            Task.Congruent(it) = nan;
+            Task.OppType{jj} = 'NA';
+            Task.Congruent(jj) = nan;
         end
     end
     
     % Get Trial Outcome
     if any(trCodes == events.Correct_) || any(trCodes == events.CatchCorrect_)
-        Task.Correct(it) = 1;
+        Task.Correct(jj) = 1;
     else
-        Task.Correct(it) = 0;
+        Task.Correct(jj) = 0;
     end
-    if isnan(Task.SaccEnd(it)) && ~isnan(Task.SRT(it))
+    if isnan(Task.SaccEnd(jj)) && ~isnan(Task.SRT(jj))
 % %         if Eyes.Good
 % %             tmpT = Eyes.Times(Eyes.Times >= Task.StimOnsetToTrial(it) & Eyes.Times <= Task.SRT(it)+3000);
 % %             tmpX = Eyes.X(Eyes.Times >= Task.StimOnsetToTrial(it) & Eyes.Times <= Task.SRT(it)+3000);
@@ -318,21 +328,21 @@ for it = 1:nTrs
 % %                 end
 % %             end
 % %         else
-            Task.SaccEnd(it) = nan;
+            Task.SaccEnd(jj) = nan;
 % %         end
     end
     
     if any(trCodes == events.Abort_)
-        Task.Abort(it) = 1;
+        Task.Abort(jj) = 1;
     else
-        Task.Abort(it) = 0;
+        Task.Abort(jj) = 0;
     end
-    if ~Task.Abort(it) && ~Task.Correct(it)
-        Task.Error(it) = 1;
+    if ~Task.Abort(jj) && ~Task.Correct(jj)
+        Task.Error(jj) = 1;
     else
-        Task.Error(it) = 0;
+        Task.Error(jj) = 0;
     end
-    if Task.Abort(it) == 0 && ~isnan(Task.SRT(it))
+    if Task.Abort(jj) == 0 && ~isnan(Task.SRT(jj))
 % %         if Eyes.Good
 % %             mnX = nanmean(Eyes.X(Eyes.Times >= (Task.SRT(it) + 50) & Eyes.Times <= (Task.SRT(it) + 100)));
 % %             mnY = nanmean(Eyes.Y(Eyes.Times >= (Task.SRT(it) + 50) & Eyes.Times <= (Task.SRT(it) + 100)));
@@ -357,51 +367,17 @@ for it = 1:nTrs
 % %             
 % %         end
     end
-end
+    
+end%for:trial(jj)
+
+%remove trials due to set size ~= 8
+fieldsTask = fieldnames(Task);
+NUM_FIELD = length(fieldsTask);
+for ff = 1:NUM_FIELD
+  Task.(fieldsTask{ff})(jjRemoveSetSize,:) = [];
+end%for:field(ff)
 
 %% Get Trial Outcomes
-% Correct Trials:
-% Task.Correct  = logical(sum(bsxfun(@eq, allCodes, events.Correct_),2)) | logical(sum(bsxfun(@eq,allCodes,events.CatchCorrect_),2));
-%
-% % Errors:
-% % This needs to be checked and coded more dynamically
-% Task.error_names = {'False', 'Early', 'Late', 'FixBreak', 'HoldError', ...
-%     'CatchErrorGo', 'CatchErrorNoGo'};
-%
-% Task.error = nan(nTrs,1);
-% Task.error(Task.Correct == 1) = 0;
-%
-% false_resp = logical(sum(bsxfun(@eq, allCodes, events.Error_sacc),2));
-% if(any(false_resp))
-%     Task.error(false_resp) = 1;
-% end
-%
-% early_resp = logical(sum(bsxfun(@eq, allCodes, events.EarlySaccade_),2));
-% if(any(early_resp))
-%     Task.error(early_resp) = 2;
-% end
-%
-% fix_break = logical(sum(bsxfun(@eq, allCodes, events.FixError_),2));
-% if(any(fix_break))
-%     Task.error(fix_break) = 4;
-% end
-%
-% hold_err = logical(sum(bsxfun(@eq, allCodes, events.BreakTFix_),2));
-% if(any(hold_err))
-%     Task.error(hold_err) = 5;
-% end
-%
-% catch_go = logical(sum(bsxfun(@eq, allCodes, events.CatchIncorrectG_),2));
-% if(any(catch_go))
-%     Task.error(catch_go) = 6;
-% end
-%
-% catch_hold = logical(sum(bsxfun(@eq, allCodes, events.CatchIncorrectG_),2));
-% if(any(catch_hold))
-%     Task.error(catch_hold) = 7;
-% end
-
-
 Task.AlignTimes = Task.StimOnsetToTrial;
 Task.SaccEnd    = Task.SaccEnd          - Task.StimOnsetToTrial;
 Task.Reward     = Task.Reward           - Task.StimOnsetToTrial;
@@ -412,8 +388,8 @@ Task.FixSpotOn  = Task.FixSpotOn        - Task.StimOnsetToTrial;
 Task.FixSpotOff = Task.FixSpotOff       - Task.StimOnsetToTrial;
 Task.Fixation   = Task.Fixation         - Task.StimOnsetToTrial;
 Task.StimOnset  = Task.StimOnsetToTrial - Task.StimOnsetToTrial; % should be all zero aferwards
-Task.GoCue 		= Task.FixSpotOff;
-Task.SRT        = Task.SRT              - Task.StimOnsetToTrial - Task.GoCue;
+% Task.GoCue 		= Task.FixSpotOff;
+Task.SRT        = Task.SRT              - Task.StimOnsetToTrial - Task.FixSpotOff;
 
 % % Get SRT and SaccEnd here from Eyes
 % saccadeB = klPlaceEvents(Task,Eyes.saccStarts);

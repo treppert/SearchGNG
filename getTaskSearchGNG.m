@@ -3,7 +3,9 @@ function [ Task , Eyes ] = getTaskSearchGNG( sessDir )
 %   Detailed explanation goes here
 
 NUM_SESSION = length(sessDir);
-ROOT_DIR = 'Z:\data\Leonardo\Search-Go-NoGo\';
+% ROOT_DIR = 'Z:\data\Leonardo\Search-Go-NoGo\';
+% ROOT_DIR = '/mnt/schalllab/data/Leonardo/Search-Go-NoGo/';
+ROOT_DIR = '/mnt/schalllab/data/Darwin/proNoElongationColor/';
 
 MIN_NUM_TRIAL = 100;
 Eyes = 0;
@@ -21,6 +23,7 @@ infoEndCode = 2999;
 Task = [];
 
 for kk = 1:NUM_SESSION
+  if ismember(kk, [13,24]); continue; end
   fprintf('Processing session %s\n', sessDir{kk})
   
   % Get event codes and times
