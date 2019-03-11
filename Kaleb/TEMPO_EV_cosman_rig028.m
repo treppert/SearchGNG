@@ -35,10 +35,10 @@ EV.Tone_       = 2001;
 EV.Error_tone  = 776;
 
 % error codes
-EV.Correct_    = 2600;
+EV.Correct_    = 2600; %go_corr | nogo_corr
 EV.FixError_   = 2750;
 EV.GoError_    = 2752;
-EV.Abort_      = 2620;
+EV.Abort_      = 2620; %no_fix | broke_fix | body_move
 
 EV.GoTargFixError_    = 2754;
 EV.PlacOn_            = 2320;
