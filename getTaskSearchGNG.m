@@ -109,7 +109,7 @@ for kk = 13:13%1:NUM_SESSION
 
   EV = TEMPO_EV_cosman_rig028;
   TaskKK = klDecodeAnti(eventCodes(trHeads==CODE_TRIAL_PROANTI), ...
-    eventTimes(trHeads==CODE_TRIAL_PROANTI),EV,0,'-p',print,'-np',nPrint);
+    eventTimes(trHeads==CODE_TRIAL_PROANTI),EV,0);
   
   %remove all aborted trials
   idxAbort = (TaskKK.Abort == 1);
