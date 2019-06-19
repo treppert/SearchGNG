@@ -2,72 +2,96 @@ function [ ] = plot_CDF_RT_SGNG( Task )
 %plot_CDF_RT_SGNG Summary of this function goes here
 %   Detailed explanation goes here
 
-NUM_SESSION = length(Task);
+N_SESS = length(Task);
+PR_BIN = (0.1 : 0.1 : 0.9);   N_BIN = length(PR_BIN);
 
-respTime = new_struct({'clrSim','clrDiff'}, 'dim',[1,NUM_SESSION]);
-respTime = struct('arLow',respTime, 'arHigh',respTime);
-respTime = struct('green',respTime, 'red',respTime);
+rtHH = NaN(N_SESS,N_BIN); %High identifiability, High discriminability
+rtHL = NaN(N_SESS,N_BIN);
+rtLH = NaN(N_SESS,N_BIN);
+rtLL = NaN(N_SESS,N_BIN);
 
-pCorr = respTime;
-
-for kk = 1:NUM_SESSION
+for kk = 1:N_SESS
   
-  %index by color similarity of the singleton and distractors
-  idx_clr_sim = (Task(kk).HardColor == 1);
-  idx_clr_diff = (Task(kk).HardColor == 0);
+  RTkk = Task(kk).SRT;
+  
+  %index by color similarity (singleton identifiability)
+  idxIH = (Task(kk).HardColor == 0); %Identifiability High
+  idxIL = (Task(kk).HardColor == 1); %Identifiability Low
   
   %index by color of the singleton
-  idx_sing_red = (Task(kk).SingletonColor == 0);
-  idx_sing_nRed = (Task(kk).SingletonColor == 2);
-  idx_sing_grn = (Task(kk).SingletonColor == 1);
-  idx_sing_nGrn = (Task(kk).SingletonColor == 9);
+  idxSingRed = (Task(kk).SingletonColor == 0);
+  idxSingNRed = (Task(kk).SingletonColor == 2);
+  idxSingGrn = (Task(kk).SingletonColor == 1);
+  idxSingNGrn = (Task(kk).SingletonColor == 9);
   
-  %index by singleton aspect ratio
-  idx_ar_low = (Task(kk).SingletonDiff == 2);
-  idx_ar_high = (Task(kk).SingletonDiff == 4);
+  %index by singleton aspect ratio (cue discriminability)
+  idxDH = (Task(kk).SingletonDiff == 4); %Discriminability High
+  idxDL = (Task(kk).SingletonDiff == 2); %Discriminability Low
   
   %index by trial outcome
-  idx_corr = (Task(kk).Correct == 1);
-  
-  %compute percent correct
-  pCorr.red.arHigh(kk).clrDiff = sum(idx_clr_diff & idx_sing_red & idx_ar_high & idx_corr) / sum(idx_clr_diff & idx_sing_red & idx_ar_high);
-  pCorr.red.arHigh(kk).clrSim = sum(idx_clr_sim & (idx_sing_red | idx_sing_nRed) & idx_ar_high & idx_corr) / sum(idx_clr_sim & (idx_sing_red | idx_sing_nRed) & idx_ar_high);
-  pCorr.red.arLow(kk).clrDiff = sum(idx_clr_diff & idx_sing_red & idx_ar_high & idx_corr) / sum(idx_clr_diff & idx_sing_red & idx_ar_low);
-  pCorr.red.arLow(kk).clrSim = sum(idx_clr_sim & (idx_sing_red | idx_sing_nRed) & idx_ar_high & idx_corr) / sum(idx_clr_sim & (idx_sing_red | idx_sing_nRed) & idx_ar_low);
+  idxCorr = (Task(kk).Correct == 1);
   
   %collect RT data
-  respTime.red.arHigh(kk).clrDiff = Task(kk).SRT(idx_clr_diff & idx_sing_red & idx_ar_high);
-  respTime.red.arHigh(kk).clrSim = Task(kk).SRT(idx_clr_sim & (idx_sing_red | idx_sing_nRed) & idx_ar_high);
-  respTime.red.arLow(kk).clrDiff = Task(kk).SRT(idx_clr_diff & idx_sing_red & idx_ar_low);
-  respTime.red.arLow(kk).clrSim = Task(kk).SRT(idx_clr_sim & (idx_sing_red | idx_sing_nRed) & idx_ar_low);
-  respTime.green.arHigh(kk).clrDiff = Task(kk).SRT(idx_clr_diff & idx_sing_grn & idx_ar_high);
-  respTime.green.arHigh(kk).clrSim = Task(kk).SRT(idx_clr_sim & (idx_sing_grn | idx_sing_nGrn) & idx_ar_high);
-  respTime.green.arLow(kk).clrDiff = Task(kk).SRT(idx_clr_diff & idx_sing_grn & idx_ar_low);
-  respTime.green.arLow(kk).clrSim = Task(kk).SRT(idx_clr_sim & (idx_sing_grn | idx_sing_nGrn) & idx_ar_low);
+  rtHH(kk,:) = quantile(RTkk(idxIH & idxDH & idxCorr), PR_BIN);
+  rtHL(kk,:) = quantile(RTkk(idxIH & idxDL & idxCorr), PR_BIN);
+  rtLH(kk,:) = quantile(RTkk(idxIL & idxDH & idxCorr), PR_BIN);
+  rtLL(kk,:) = quantile(RTkk(idxIL & idxDL & idxCorr), PR_BIN);
+  
+%   respTime.red.arHigh(kk).clrDiff = Task(kk).SRT(idx_clr_diff & idxSingRed & idx_ar_high);
+%   respTime.red.arHigh(kk).clrSim = Task(kk).SRT(idx_clr_sim & (idxSingRed | idxSingNRed) & idx_ar_high);
+%   respTime.red.arLow(kk).clrDiff = Task(kk).SRT(idx_clr_diff & idxSingRed & idx_ar_low);
+%   respTime.red.arLow(kk).clrSim = Task(kk).SRT(idx_clr_sim & (idxSingRed | idxSingNRed) & idx_ar_low);
   
 end%for:session(kk)
 
 
 %% Plotting
 
-xx.red.arHigh.clrDiff = sort(respTime.red.arHigh(1).clrDiff);
-xx.red.arHigh.clrSim = sort(respTime.red.arHigh(1).clrSim);
-xx.red.arLow.clrDiff = sort(respTime.red.arLow(1).clrDiff);
-xx.red.arLow.clrSim = sort(respTime.red.arLow(1).clrSim);
-
-yy.red.arHigh.clrDiff = (1:length(xx.red.arHigh.clrDiff)) / length(xx.red.arHigh.clrDiff);
-yy.red.arHigh.clrSim = (1:length(xx.red.arHigh.clrSim)) / length(xx.red.arHigh.clrSim);
-yy.red.arLow.clrDiff = (1:length(xx.red.arLow.clrDiff)) / length(xx.red.arLow.clrDiff);
-yy.red.arLow.clrSim = (1:length(xx.red.arLow.clrSim)) / length(xx.red.arLow.clrSim);
+%cumulative distribution
+muRTHH = mean(rtHH);  seRTHH = std(rtHH) / sqrt(N_SESS);
+muRTHL = mean(rtHL);  seRTHL = std(rtHL) / sqrt(N_SESS);
+muRTLH = mean(rtLH);  seRTLH = std(rtLH) / sqrt(N_SESS);
+muRTLL = mean(rtLL);  seRTLL = std(rtLL) / sqrt(N_SESS);
 
 figure(); hold on
+errorbar(muRTHH, PR_BIN, seRTHH, 'horizontal', 'k-', 'LineWidth',1.25, 'CapSize',0)
+errorbar(muRTHL, PR_BIN, seRTHL, 'horizontal', 'k-', 'LineWidth',0.75, 'CapSize',0)
+errorbar(muRTLH, PR_BIN, seRTLH, 'horizontal', 'r-', 'LineWidth',1.25, 'CapSize',0)
+errorbar(muRTLL, PR_BIN, seRTLL, 'horizontal', 'r-', 'LineWidth',0.75, 'CapSize',0)
+xlabel('Response time (ms)')
+ylabel('F(t)'); ylim([0 1])
+ppretty([6.4,4]); pause(0.1)
 
-plot(xx.red.arHigh.clrDiff, yy.red.arHigh.clrDiff, 'k-')
-plot(xx.red.arHigh.clrSim, yy.red.arHigh.clrSim, 'r-')
-plot(xx.red.arLow.clrDiff, yy.red.arLow.clrDiff, 'k--')
-plot(xx.red.arLow.clrSim, yy.red.arLow.clrSim, 'r--')
 
+%mean interaction contrast
+idxMed = 5; %index corresponding to median RT
+
+figure(); hold on
+errorbar([1 2], [muRTHH(idxMed) muRTHL(idxMed)], [seRTHH(idxMed) seRTHL(idxMed)], 'k-', 'CapSize',0)
+errorbar([1 2], [muRTLH(idxMed) muRTLL(idxMed)], [seRTLH(idxMed) seRTLL(idxMed)], 'r-', 'CapSize',0)
+ylabel('RT (ms)')
+xlim([.9 2.1]); xticks([1 2]); xticklabels({'High','Low'})
+ppretty([2 4])
+
+
+%distribution of session medians
+
+figure()
+subplot(2,2,1); histogram(rtHH(:,idxMed), 'BinWidth',10, 'FaceColor',[.4 .4 .4], 'LineWidth',1.25)
+subplot(2,2,2); histogram(rtHL(:,idxMed), 'BinWidth',10, 'FaceColor',[.4 .4 .4], 'LineWidth',0.5)
+subplot(2,2,3); histogram(rtLH(:,idxMed), 'BinWidth',10, 'FaceColor',[1 .5 .5], 'LineWidth',1.25)
+subplot(2,2,4); histogram(rtLL(:,idxMed), 'BinWidth',10, 'FaceColor',[1 .5 .5], 'LineWidth',0.5)
 ppretty([6.4,4])
+
+
+%% Stats
+
+%save session medians for Shapiro-Wilk test of normality
+rtHH = rtHH(:,idxMed);
+rtHL = rtHL(:,idxMed);
+rtLH = rtLH(:,idxMed);
+rtLL = rtLL(:,idxMed);
+save('Fig3A-Da-medRT.mat', 'rtHH','rtHL','rtLH','rtLL')
 
 end%fxn:plot_CDF_RT_SGNG()
 
